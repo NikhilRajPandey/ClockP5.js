@@ -1,5 +1,5 @@
 let arc_cut = 10;
-// let angle;
+
 let big_diamtere = 650;
 let small_diametere = 15;
 let mid_diameter = 55;
@@ -13,14 +13,11 @@ let side;
 let clock_watches;
 // 3,6,9,12 Like texts
 
-let hands_weights = [8,5,2]
-let hands_size = [big_diamtere/5,big_diamtere/3,big_diamtere/4];
 // hh:mm:ss
-let hands_positions;
-// It will contain the all heigh,adacent side to represent hands
+let hands_weights = [8, 5, 2];
+let hands_size = [big_diamtere / 5, big_diamtere / 3, big_diamtere / 4];
 let hand_starting;
 // This is the point where are all hands come from
-let increments_angle = [360/12,360/60]; // By Unitary Method we find angle between a hour,minutes,seconds [minutes will be equal to seconds]
 /*
 You will find that Many times i have used side instead of width and height because my canvas is a square equals
 */
@@ -28,17 +25,31 @@ function setup() {
     createCanvas(windowHeight - 50, windowHeight - 50);
     angle = 0;
     side = width;
+
     // These are the experimental values i just tested and then found it
     clock_watches = [[side / 2 - 30, side / 2 - big_diamtere / 2 + 80],
     [side / 2 - big_diamtere / 2 + 30, side / 2 + 20],
     [side / 2 - 20, side / 2 + big_diamtere / 2 - 35],
     [side / 2 + big_diamtere / 2 - 60, side / 2 + 20]];
-    hands = [hour(),minute(),second()];
-    hand_starting = [width/2+mid_diameter/2,width/2];
-    frameRate(30);
+
+    hand_starting = [width / 2 + mid_diameter / 2, width / 2];
+
+    frameRate(60);
 }
 function give_radiant(degre) {
     return degre * PI / 180;
+}
+function give_angle_of_clock(hand_) {
+    // It will return the angle of the any hand of the clock by time
+    if (hand_ == 0) {// Hour
+        return 360 * hour() / 12;
+    }
+    else if (hand_ == 1) { // Minute
+        return 360 * minute() / 60;
+    }
+    else if (hand_ == 2) { // Second
+        return 360 * second() / 60;
+    }
 }
 function draw() {
     strokeCap(SQUARE);
@@ -58,7 +69,7 @@ function draw() {
     strokeWeight(4);
     ellipse(side / 2, side / 2, mid_diameter, mid_diameter);
 
-    // Writing numbers like 3,6,9,12 and making =,||
+    // Writing numbers/clock_watches like 3,6,9,12 and making =,||
     noStroke();
     fill(color(255, 255, 255));
     textSize(64);
@@ -85,10 +96,35 @@ function draw() {
     text("MONEY", side / 2, side / 2 + 160);
 
     /* **************Main and Important thing Moving and Making of the hands************** */
-    stroke(color(255,255,255));
-    for(let i =0;i<hands_size.length;i++){
-    strokeWeight(hands_weights[i]);
-    line(hand_starting[0],hand_starting[1],hand_starting[0]+hands_size[i],hand_starting[1]);
+    stroke(color(255, 255, 255));
+    
+    let angle;
+    let adacent; // Reference Link: https://www.mathsisfun.com/sine-cosine-tangent.html
+    let opposite;
+    for (let i = 0; i < hands_size.length; i++) {
+        strokeWeight(hands_weights[i]);
+        angle = give_angle_of_clock(i);
+        let hSize = hands_size[i];
+
+        opposite = sin(angle) * hSize;
+        adacent = cos(angle) * hSize;
+        // console.log(opposite);
+        if(angle <=90){// From 12-3
+            angle = angle % 90; // I have % by 90 cause i want if angle is like 150->60,300->30,45->45
+            line(hand_starting[0], hand_starting[1], hand_starting[0] + adacent, hand_starting[1]-opposite);
+        }
+        else if(angle >= 180){ // From 3-6
+            angle = angle % 90;
+            line(hand_starting[0], hand_starting[1], hand_starting[0] - adacent, hand_starting[1]-opposite);
+        }
+        else if(angle >= 270){ // From 6-9
+            angle = angle % 90;
+            line(hand_starting[0], hand_starting[1], hand_starting[0] - adacent, hand_starting[1]+opposite);
+        }
+        else if(angle >= 360){ // From 9-12
+            angle = angle % 90;
+            line(hand_starting[0], hand_starting[1], hand_starting[0] + adacent, hand_starting[1]+opposite);
+        }
     }
-    noLoop();
+    // noLoop();
 }
