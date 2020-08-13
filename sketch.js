@@ -14,9 +14,9 @@ let clock_watches;
 // 3,6,9,12 Like texts
 
 // hh:mm:ss
-let hands_weights = [8, 5, 2];
-let hands_size = [big_diamtere / 5, big_diamtere / 3, big_diamtere / 4];
-let hand_starting;
+let hands_weights = [15, 5, 2];
+let hands_size = [big_diamtere / 6, big_diamtere / 2.3, big_diamtere / 3];
+let mid_point;
 // This is the point where are all hands come from
 /*
 You will find that Many times i have used side instead of width and height because my canvas is a square equals
@@ -26,13 +26,13 @@ function setup() {
     angle = 0;
     side = width;
 
-    // These are the experimental values i just tested and then found it
+    // These are the experimental values i just tested and then found it and these are the cordinates for numbers like 3,6,9,12 on clock
     clock_watches = [[side / 2 - 30, side / 2 - big_diamtere / 2 + 80],
     [side / 2 - big_diamtere / 2 + 30, side / 2 + 20],
     [side / 2 - 20, side / 2 + big_diamtere / 2 - 35],
     [side / 2 + big_diamtere / 2 - 60, side / 2 + 20]];
 
-    hand_starting = [width / 2 + mid_diameter / 2, width / 2];
+    mid_point = side/2;
 
     frameRate(60);
 }
@@ -41,13 +41,15 @@ function give_radiant(degre) {
 }
 function give_angle_of_clock(hand_) {
     // It will return the angle of the any hand of the clock by time
+    // For Testing time is 7:19:11
     if (hand_ == 0) {// Hour
-        return 360 * hour() / 12;
+        return 360 * (hour()%12) / 12;
     }
     else if (hand_ == 1) { // Minute
         return 360 * minute() / 60;
     }
     else if (hand_ == 2) { // Second
+        // console.log(360 * second() / 60,second());
         return 360 * second() / 60;
     }
 }
@@ -64,10 +66,6 @@ function draw() {
     stroke(color(255, 255, 255));
     strokeWeight(2);
 
-    // Making Two mid circles
-    ellipse(side / 2, side / 2, small_diametere, small_diametere);
-    strokeWeight(4);
-    ellipse(side / 2, side / 2, mid_diameter, mid_diameter);
 
     // Writing numbers/clock_watches like 3,6,9,12 and making =,||
     noStroke();
@@ -104,27 +102,46 @@ function draw() {
     for (let i = 0; i < hands_size.length; i++) {
         strokeWeight(hands_weights[i]);
         angle = give_angle_of_clock(i);
+        let angle_copy = angle;
         let hSize = hands_size[i];
 
+        angle = give_radiant(angle % 90); // I have % by 90 cause i want if angle is like 150->60,300->30,45->45
         opposite = sin(angle) * hSize;
         adacent = cos(angle) * hSize;
-        // console.log(opposite);
-        if(angle <=90){// From 12-3
-            angle = angle % 90; // I have % by 90 cause i want if angle is like 150->60,300->30,45->45
-            line(hand_starting[0], hand_starting[1], hand_starting[0] + adacent, hand_starting[1]-opposite);
+        // console.log(angle_copy,angle);
+        if(angle_copy == 0){
+            line(mid_point,mid_point,mid_point,mid_point-hSize);
         }
-        else if(angle >= 180){ // From 3-6
-            angle = angle % 90;
-            line(hand_starting[0], hand_starting[1], hand_starting[0] - adacent, hand_starting[1]-opposite);
+        else if(angle_copy == 90){
+            line(mid_point,mid_point,mid_point+hSize,mid_point);
         }
-        else if(angle >= 270){ // From 6-9
-            angle = angle % 90;
-            line(hand_starting[0], hand_starting[1], hand_starting[0] - adacent, hand_starting[1]+opposite);
+        else if(angle_copy == 180){
+            line(mid_point,mid_point,mid_point,mid_point+hSize);
         }
-        else if(angle >= 360){ // From 9-12
-            angle = angle % 90;
-            line(hand_starting[0], hand_starting[1], hand_starting[0] + adacent, hand_starting[1]+opposite);
+        else if(angle_copy == 270){
+            line(mid_point,mid_point,mid_point-hSize,mid_point);
+        }
+        else if(angle_copy <90){// From 12-3
+            line(mid_point, mid_point, mid_point+opposite, mid_point-adacent);
+        }
+        else if(angle_copy >90 && angle_copy < 180){ // From 3-6
+            line(mid_point, mid_point, mid_point + adacent, mid_point+opposite);
+        }
+        else if(angle_copy >180 && angle_copy < 270){ // From 6-9
+            line(mid_point, mid_point, mid_point - opposite, mid_point+adacent);
+        }
+        else if(angle_copy >270 && angle_copy < 360){ // From 9-12
+            line(mid_point, mid_point, mid_point - adacent, mid_point-opposite);
+        }
+        else{
+            console.log("yes it gones"+angle_copy);
         }
     }
+    // Making Two mid circles
+    // I have made them in last to make cut effect of hands of clock
+    ellipse(side / 2, side / 2, small_diametere, small_diametere);
+    strokeWeight(4);
+    fill(color(0,0,0));
+    ellipse(side / 2, side / 2, mid_diameter, mid_diameter);
     // noLoop();
 }
